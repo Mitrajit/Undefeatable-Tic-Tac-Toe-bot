@@ -1,5 +1,6 @@
 from os import system
-import math, random
+import math, random, colorama
+colorama.init()
 class tictac:
     def __init__(self):
         self.boxes=[" "]*9
@@ -24,9 +25,23 @@ class tictac:
             return False
     def display(self):
         system("cls")
+        board="""
+         1 | 2 | 3
+        ---+---+---
+         4 | 5 | 6
+        ---+---+---
+         7 | 8 | 9 
+         """
         print("Tic Tac Toe:")
-        for i in range(3):
-            print(" | ".join([self.boxes[ii] if self.boxes[ii]!=" " else str(ii) for ii in range(i*3,i*3+3)]))
+        for i in range(len(self.boxes)):
+            if self.boxes[i]=="X":
+                board=board.replace(" "+str(i+1)," "+colorama.Fore.CYAN+str(self.boxes[i])+colorama.Fore.RESET)
+            elif self.boxes[i]=="O":
+                board=board.replace(" "+str(i+1)," "+colorama.Fore.RED+str(self.boxes[i])+colorama.Fore.RESET)
+        board=board.replace("-",colorama.Fore.WHITE+"-"+colorama.Fore.RESET)
+        board=board.replace("|",colorama.Fore.WHITE+"|"+colorama.Fore.RESET)
+        board=board.replace("+",colorama.Fore.WHITE+"+"+colorama.Fore.RESET)
+        print(board)
     def put(self,position,letter):
         self.boxes[position]=letter
     def undo(self,position):
@@ -37,11 +52,11 @@ class human:
     def getMove(self,state):
         while True:
             pos = int(input("Enter the position to put O: "))
-            if pos in state.available() :
+            if pos-1 in state.available() :
                 break
             else:
                 print("Position not available try again")     
-        return pos   
+        return pos-1   
 class bot:
     def __init__(self,let):
         self.letter=let
@@ -78,29 +93,71 @@ class randbot:
         return random.choice(state.available())
 class playgame():
     def __init__(self):
-        gameboard=tictac()
+        self.p1=[]
+        self.p2=[]
+        self.gameboard=tictac()
+        self.choosing()
+        self.firstplayer=1
+        self.scores={self.p1[0]:0,self.p2[0]:0}
         while True:
-            h=human("O")
-            r=bot("X")
-            
-            gameboard.display()
-            pos=r.getMove(gameboard)
-            gameboard.put(pos,r.letter)
-            if gameboard.winner(pos,r.letter):
-                gameboard.display()
-                print(r.letter,"is the Winner")
+            self.gameboard.display()
+            if self.firstplayer==1:
+                player=self.p1
+                self.firstplayer=2
+            else:
+                player=self.p2
+                self.firstplayer=1
+            pos=player[1].getMove(self.gameboard)
+            self.gameboard.put(pos,player[1].letter)
+            if self.anywin(pos,player) or self.checkdraw():
+                self.scoreboard()
+                if not self.asktocont():
+                    break
+                self.gameboard=tictac()
+        system("cls")
+        self.scoreboard()
+    def choosing(self):
+        print("""
+Tic-Tac-Toe
+Choose the mode you want to play:
+1. Human vs Smart Bot
+2. Human vs Random bot
+3. Human vs Human""")
+        while True:
+            choice=int(input())
+            if choice==1:
+                self.p1=["human",human("O")]
+                self.p2=["Smart bot",bot("X")]
                 break
-            if gameboard.available()==[]:
-                gameboard.display()
-                print("Draw")
+            elif choice==2:
+                self.p1=["human",human("O")]
+                self.p2=["Random bot",randbot("X")]
                 break
-            gameboard.display()
-            pos=h.getMove(gameboard)
-            gameboard.put(pos,h.letter)
-            if gameboard.winner(pos,h.letter):
-                gameboard.display()
-                print(h.letter,"is the winner")
+            elif choice==3:
+                self.p1=["human 1",human("O")]
+                self.p2=["human 2",human("X")]
                 break
-            
+            else:
+                print("Wrong choice, try choosing again")
+    def checkdraw(self):
+        if self.gameboard.available()==[]:
+            self.gameboard.display()
+            print("Draw")
+            return True
+        return False
+    def anywin(self,pos,plr):
+        if self.gameboard.winner(pos,plr[1].letter):
+            self.gameboard.display()
+            print(plr[0],"is the winner")
+            self.scores[plr[0]]=self.scores[plr[0]]+1
+            return True
+    def asktocont(self):
+        conti=input("Do you want to continue(Y/N)?")
+        if conti.upper() == "Y":
+            return True
+        else:
+            return False
+    def scoreboard(self):
+        print(self.scores)
 playgame()
 
