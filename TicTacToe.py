@@ -99,26 +99,12 @@ class playgame():
         self.choosing()
         self.firstplayer=1
         self.scores={self.p1[0]:0,self.p2[0]:0}
-        while True:
-            self.gameboard.display()
-            if self.firstplayer==1:
-                player=self.p1
-                self.firstplayer=2
-            else:
-                player=self.p2
-                self.firstplayer=1
-            pos=player[1].getMove(self.gameboard)
-            self.gameboard.put(pos,player[1].letter)
-            if self.anywin(pos,player) or self.checkdraw():
-                self.scoreboard()
-                if not self.asktocont():
-                    break
-                self.gameboard=tictac()
-        system("cls")
+        self.matches=0
+        self.play()
         self.scoreboard()
     def choosing(self):
-        print("""
-Tic-Tac-Toe
+        print(
+"""      Tic-Tac-Toe
 Choose the mode you want to play:
 1. Human vs Smart Bot
 2. Human vs Random bot
@@ -158,6 +144,30 @@ Choose the mode you want to play:
         else:
             return False
     def scoreboard(self):
-        print(self.scores)
+        print(colorama.Fore.MAGENTA+"{:^23}".format("SCOREBOARD")+colorama.Fore.RESET)
+        k=list(self.scores.keys())
+        print("{:^10}   {:^10}".format(k[0],k[1]))
+        k=list(self.scores.values())
+        print("{:^10}   {:^10}".format(k[0],k[1]))
+        for val in self.scores.values():
+            print("{:^10}   ".format("{:.2f}".format(val/self.matches*100)+"%"),end="")
+    def play(self):
+        while True:
+            self.gameboard.display()
+            if self.firstplayer==1:
+                player=self.p1
+                self.firstplayer=2
+            else:
+                player=self.p2
+                self.firstplayer=1
+            pos=player[1].getMove(self.gameboard)
+            self.gameboard.put(pos,player[1].letter)
+            if self.anywin(pos,player) or self.checkdraw():
+                self.matches+=1
+                self.scoreboard()
+                if not self.asktocont():
+                    break
+                self.gameboard=tictac()
+        system("cls")
 playgame()
 
