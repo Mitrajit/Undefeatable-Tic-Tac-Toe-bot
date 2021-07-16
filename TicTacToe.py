@@ -1,4 +1,4 @@
-from os import system
+from os import system, name
 import math, random, colorama
 colorama.init()
 class tictac:
@@ -24,7 +24,12 @@ class tictac:
         else:
             return False
     def display(self):
-        system("cls")
+        if name == 'nt':
+            _ = system('cls')
+  
+        # for mac and linux(here, os.name is 'posix')
+        else:
+            _ = system('clear')
         board="""
          1 | 2 | 3
         ---+---+---
