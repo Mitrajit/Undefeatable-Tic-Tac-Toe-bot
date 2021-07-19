@@ -156,6 +156,7 @@ Choose the mode you want to play:
         print("{:^10}   {:^10}".format(k[0],k[1]))
         for val in self.scores.values():
             print("{:^10}   ".format("{:.2f}".format(val/self.matches*100)+"%"),end="")
+        print()
     def play(self):
         while True:
             self.gameboard.display()
@@ -173,6 +174,11 @@ Choose the mode you want to play:
                 if not self.asktocont():
                     break
                 self.gameboard=tictac()
-        system("cls")
+        if name == 'nt':
+            _ = system('cls')
+  
+        # for mac and linux(here, os.name is 'posix')
+        else:
+            _ = system('clear')
 playgame()
 
